@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using WebApiCrud.Data.dbModels;
 using WebApiCrud.Data.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -24,7 +25,7 @@ namespace WebApiCrud.Controllers
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration configuration;
         public AuthController(UserManager<AppUser> userManager, 
-            RoleManager<IdentityRole> roleManager, IConfiguration configuration = null)
+            RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;

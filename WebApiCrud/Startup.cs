@@ -18,7 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebApiCrud.Data;
-using WebApiCrud.Data.Models;
+using WebApiCrud.Data.dbModels;
 
 namespace WebApiCrud
 {
