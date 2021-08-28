@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +20,7 @@ namespace WebApiCrud.Controllers
 {
     //[Route("api/[controller]/[action]")]
     [ApiController]
+    //[EnableCors]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<AppUser> userManager;
@@ -101,7 +103,9 @@ namespace WebApiCrud.Controllers
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256)
                     );
-                return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token), expiration = token.ValidTo });
+                return Ok(new { status="Success", user=user.UserName, roles = roles,
+                    token = new JwtSecurityTokenHandler().WriteToken(token), 
+                    expiration = token.ValidTo });
             }
             
             return Unauthorized();

@@ -1,0 +1,222 @@
+﻿@page
+@model WebApiCrud.Web.Pages.TodoModel
+@{
+    ViewData["Title"] = "Todo Lists";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p id="ss">Use this page to detail your site's privacy policy.</p>
+<div class="row">
+    <div class="col-md-4">
+        <form action="/" method="post" class="mb-3" onsubmit="newTodoList(this); return false;">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Add TodoList</label>
+                <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name">
+            </div>
+            <button type="submit" class="btn btn-primary">Add New List</button>
+        </form>
+        <ul id="TodoLists" class="list-group">
+        </ul>
+    </div>
+    <div class="col-md-8">
+        <form action="/" method="post" class="mb-3" onsubmit="newTodoItem(this); return false;">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Todo Item Name</label>
+                <input type="text" class="form-control" name="Title" id="Title" placeholder="Enter Title">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">Todo Item Description</label>
+                <input type="text" class="form-control" name="Description" id="Description" placeholder="Description">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">Todo Due Date</label>
+                <input type="date" class="form-control" name="DueDate" id="DueDate" placeholder="Due Date/Time">
+            </div>
+            <button type="submit" class="btn btn-primary">Add New Todo</button>
+        </form>
+        <div class="list-group" id="TodoListItems">
+            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">List group item heading</h5>
+                    <small>3 days ago</small>
+                </div>
+                <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+                <small>Donec id elit non mi porta.</small>
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        let selectedTodoListId = 0;
+        $(document).ready(() => {
+            getData();
+        });
+        function getData() {
+            //var data = new FormData(form);
+            //console.log(data);
+
+            var settings = {
+                "url": "https://localhost:44308/Todo",
+                "method": "GET",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": "Bearer " + sessionStorage.getItem("token"),
+                },
+                //withCredentials: true
+            };
+
+            $.ajax(settings).done(function (response) {
+                var str = "";
+                $.each(response, function (i, item) {
+                    str += "<li class='list-group-item list-group-item-primary' style='padding:unset'><button type='button' class='btn btn-primary' style='width:70%' onclick='viewList("
+                        + item.id + ")'>" + item.name + "</button><input type='button' class='btn btn-danger' style='width:30%' onclick='delTodoList(" + item.id + ")' value='Del' /></li>";
+                });
+                console.log(str);
+                $("#TodoLists").html(str);
+                console.log(response);
+            });
+        }//GetTodoLists
+        function viewList(id) {
+            selectedTodoListId = id;
+            var settings = {
+                "url": "https://localhost:44308/Todo/"+id,
+                "method": "GET",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": "Bearer " + sessionStorage.getItem("token")
+                },
+            };
+            $.ajax(settings).done(function (response) {
+                var str = "";
+                if (jQuery.isEmptyObject(response))
+                    str = "No content Available";
+                else
+                    $.each(response, function (i, item) {
+                        str += '<div class="list-group-item list-group-item-action flex-column align-items-start">'
+                            + '<div class="d-flex w-100 justify-content-between">'
+                            + '<h5 class="mb-1">' + item.title + '</h5>'
+                            + '<small>' + item.dueDate + '</small></div>'//end of d-flex
+                            + '<p class="mb-1">' + item.description + '</p><div>'
+                            + '<div style="float:right"><button class="btn btn-dark" onclick="editTodo(' + item.id + ')"><i class="far fa-edit"></i></button>'
+                            + '<button class="btn btn-dark" onclick="delTodo(' + item.id + ')"><i class="fas fa-trash-alt"></i></button></div>'//end of div float right
+                            + '<div style="float:left">'
+                            + '<div class="form-check form-check-inline" >'
+                            + '<input class="form-check-input" type="checkbox" name="IsComplete" onclick="doneTodo(this)" value="' + item.id + '" ' + ((item.isCompleted) ? "checked" : "")  + '>'
+                            + '<label class="form-check-label" for="inlineCheckbox1">Is Complete</label></div></div>'//end of div formcheck & float left
+                            + '</div></div>'; //end of div & div list-group-item
+                        //str += "<li><a class='btn btn-primary' style='width:100%' onclick='viewList(" + item.id + ")'>" + item.name + "</a></li>";
+                    });
+                console.log(str);
+                $("#TodoListItems").html(str);
+                console.log(response);
+            });
+        }//GetTodoListItems based on TodoList
+        function delTodoList(id) {
+            var settings = {
+                "url": "https://localhost:44308/Todo/DelTodoList/"+id,
+                "method": "DELETE",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": "Bearer " + sessionStorage.getItem("token"),
+                    //'Access-Control-Allow-Origin': '*',
+                    //'Access-Control-Allow-Methods': 'DELETE, OPTIONS',
+                    //'Access-Control-Allow-Credentials': true
+                },
+            };
+
+            $.ajax(settings).done(function (response) {
+                getData();
+                console.log(response);
+            });
+        }//Delete specific TodoList by id(Noted: will be exist in db which can be restored.)
+        function doneTodo(form) {
+            var data = $(form);
+            var settings = {
+                "url": "https://localhost:44308/Todo/Done",
+                "method": "PUT",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": "Bearer " + sessionStorage.getItem("token"),
+                    //'Access-Control-Allow-Origin': '*',
+                    //'Access-Control-Allow-Methods': 'PUT, OPTIONS',
+                    //'Access-Control-Allow-Credentials':true,
+                    "Content-Type": "application/json",
+                    withCredentials: true
+                },
+                "data": JSON.stringify({
+                    "TodoId": parseInt(data.val()),
+                    "IsDone": data.is(":checked")
+                }),
+            };
+
+            $.ajax(settings).done(function (response) {
+                console.log(response);
+                viewList(selectedTodoListId);
+            });
+        }//Todo is completed check
+        function delTodo(id) {
+            if (confirm("Are you sure to delete this?")) {
+                var settings = {
+                    "url": "https://localhost:44308/Todo/DelTodoItem/" + id,
+                    "method": "DELETE",
+                    "timeout": 0,
+                    "headers": {
+                        "Authorization": "Bearer " + sessionStorage.getItem("token")
+                    },
+                };
+
+                $.ajax(settings).done(function (response) {
+                    viewList(selectedTodoListId);
+                    console.log(response);
+                });
+            }
+        }//Todo will be permanently deleted from db
+        function newTodoList(form) {
+            var data = new FormData(form);
+            var settings = {
+                "url": "https://localhost:44308/Todo/NewTodoList",
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": "Bearer " + sessionStorage.getItem("token"),
+                    "Content-Type": "application/json"
+                },
+                "data": JSON.stringify({
+                    "Name": data.get("name")
+                }),
+            };
+
+            $.ajax(settings).done(function (response) {
+                getData(selectedTodoListId);
+                //console.log(response);
+            });
+        }//Create New todo list
+        function newTodoItem(form) {
+            var data = new FormData(form);
+            var settings = {
+                "url": "https://localhost:44308/Todo/NewTodo",
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": "Bearer " + sessionStorage.getItem("token"),
+                    "Content-Type": "application/json"
+                },
+                "data": JSON.stringify({
+                    "Title": data.get("Title"),
+                    "Description": data.get("Description"),
+                    "DueDate": data.get("DueDate"),
+                    "TodoListId": selectedTodoListId
+                }),
+            };
+
+            $.ajax(settings).done(function (response) {
+                viewList(selectedTodoListId);
+                //console.log(response);
+            });
+        }//Create new todo of todo list (parameter: form)
+
+    </script>
+}

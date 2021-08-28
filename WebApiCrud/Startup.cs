@@ -40,6 +40,18 @@ namespace WebApiCrud
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy => {
+                    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                });
+                //options.AddPolicy(name:"CorsPolicy",
+                //builder => builder.WithOrigins("https://localhost:44361", "http://localhost:40809")
+                //    .AllowAnyMethod()
+                //    .AllowAnyHeader()
+                //);
+            });
+
             services.AddAuthentication(op =>
             {
                 op.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -59,13 +71,21 @@ namespace WebApiCrud
                 };
             });
             //services.AddAuthentication(AzureADDefaults.BearerAuthenticationScheme)
-            //    .AddAzureADBearer(options => Configuration.Bind("AzureAd", options));
+            //    .AddAzureADBearer(options => Configuration.Bind("AzureAd", options))            
+
             services.AddControllers();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            /*
+             * Configuration should be in correct format like below links
+             * https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-3.1#middleware-order
+             * https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-3.1
+             * otherwise it will drive you crazy 
+             */
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -74,6 +94,12 @@ namespace WebApiCrud
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+
+            app.UseCors(op => {
+                op.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                //op.SetIsOriginAllowedToAllowWildcardSubdomains();
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();

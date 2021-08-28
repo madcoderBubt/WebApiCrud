@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31605.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiCrud", "WebApiCrud\WebApiCrud.csproj", "{28B94634-ADE1-4195-9C16-66AC5DDC2B5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiCrud.Web", "WebApiCrud.Web\WebApiCrud.Web.csproj", "{FCBBC007-E2C3-42DF-AAB6-3F60D89758FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiCrud.Web", "WebApiCrud.Web\WebApiCrud.Web.csproj", "{FCBBC007-E2C3-42DF-AAB6-3F60D89758FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

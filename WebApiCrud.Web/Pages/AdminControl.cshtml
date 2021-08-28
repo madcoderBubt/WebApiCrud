@@ -1,0 +1,93 @@
+﻿@page
+@model WebApiCrud.Web.Pages.AdminControlModel
+@{
+    ViewData["Title"] = "Admin Access";
+}
+
+<div class="row">
+    <div class="col-12" id="authAdmin">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>User Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tblBody">
+                @*<tr>
+                    <td></td>
+                </tr>*@
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{ 
+    <script>
+        $(document).ready(() => {
+            getData();
+        });
+        function getData() {
+            //var data = new FormData(form);
+            //console.log(data);
+
+            var settings = {
+                "url": "https://localhost:44308/Admin",
+                "method": "GET",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": "Bearer " + sessionStorage.getItem("token"),
+                },
+                //withCredentials: true
+            };
+
+            $.ajax(settings).done(function (response) {
+                var str = "";
+                $.each(response, function (i, item) {
+                    str += `<tr><td>` + item.userName + `</td><td>`
+                        + `<form onsubmit="saveChanges(this);return false;" method="PUT" action="/">`
+                        + `<input type="hidden" id="userName" value="` + item.userName + `"/>`
+                        + '<div class="form-check form-check-inline" >'
+                        + '<input class="form-check-input" type="checkbox" id="canGet" value="' + item.canGet + '" ' + ((item.canGet) ? "checked" : "") + '>'
+                        + '<label class="form-check-label" for="inlineCheckbox1">Retrive</label></div>'
+                        + '<div class="form-check form-check-inline" >'
+                        + '<input class="form-check-input" type="checkbox" id="canPost" value="' + item.canPost + '" ' + ((item.canPost) ? "checked" : "") + '>'
+                        + '<label class="form-check-label" for="inlineCheckbox1">Create</label></div>'
+                        + '<div class="form-check form-check-inline" >'
+                        + '<input class="form-check-input" type="checkbox" id="canPut" value="' + item.canPut + '" ' + ((item.canPut) ? "checked" : "") + '>'
+                        + '<label class="form-check-label" for="inlineCheckbox1">Update</label></div>'
+                        + '<div class="form-check form-check-inline" >'
+                        + '<input class="form-check-input" type="checkbox" id="canDelete" value="' + item.canDelete + '" ' + ((item.canDelete) ? "checked" : "") + '>'
+                        + '<label class="form-check-label" for="inlineCheckbox1">Delete</label></div>'
+                        + `<input type="submit" class="btn btn-primary" value="Save"/></form></td></tr>`;
+                });
+                //console.log(str);
+                $("#tblBody").html(str);
+                //console.log(response);
+            });
+        }//GetTodoLists
+        function saveChanges(form) {
+            let data = $(form);
+            var settings = {
+                "url": "https://localhost:44308/Admin/UserAccess",
+                "method": "PUT",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": "Bearer " + sessionStorage.getItem("token"),
+                    "Content-Type": "application/json"
+                },
+                "data": JSON.stringify({
+                    "UserName": data.find("input#userName").val(),
+                    "CanGet": data.find("input#canGet").is(":checked"),
+                    "CanPost": data.find("input#canPost").is(":checked"),
+                    "CanPut": data.find("input#canPut").is(":checked"),
+                    "CanDelete": data.find("input#canDelete").is(":checked")
+                }),
+            };
+
+            $.ajax(settings).done(function (response) {
+                getData(selectedTodoListId);
+                //console.log(response);
+            });
+        }
+    </script>
+}

@@ -1,0 +1,85 @@
+﻿@page
+@model WebApiCrud.Web.Pages.LoginModel
+@{
+    ViewData["Title"] = "User Authentication";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <h1>Login</h1>
+        <hr />
+        <form action="/" method="post" onsubmit="login(this); return false;">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Email address</label>
+                <input type="text" class="form-control" name="UserName" id="UserName"  placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">Password</label>
+                <input type="password" class="form-control" name="Password" id="Password" placeholder="Password">
+            </div>
+            @*<div class="form-check">
+                <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                <label class="form-check-label" for="exampleCheck1">Check me out</label>
+            </div>*@
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <h1>Registration</h1>
+        <hr />
+        <form action="/" method="post">
+            <div class="form-group">
+                <label for="Email">Email address</label>
+                <input type="email" class="form-control" name="Email" id="Email" aria-describedby="emailHelp" placeholder="Enter email">
+                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+            </div>
+            <div class="form-group">
+                <label for="UserName">Email address</label>
+                <input type="text" class="form-control" name="UserName" id="UserName" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" class="form-control" name="Password" id="Password" placeholder="Password">
+            </div>
+            @*<div class="form-check">
+            <input type="checkbox" class="form-check-input" id="exampleCheck1">
+            <label class="form-check-label" for="exampleCheck1">Check me out</label>
+        </div>*@
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+@section Scripts{ 
+    <script>
+        function login(form) {
+            var data = new FormData(form);
+            console.log(data);
+            
+            var settings = {
+                "url": "https://localhost:44308/Auth/Login",
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                    "Content-Type": "application/json",
+                    'Access-Control-Allow-Origin': '*',
+                },
+                "data": JSON.stringify({
+                    "UserName": data.get("UserName"),
+                    "Password": data.get("Password")
+                }),
+            };
+
+            $.ajax(settings).done(function (response) {
+                if (response.status == "Success") {
+                    sessionStorage.setItem("token", response.token);
+                    sessionStorage.setItem("expires", response.expiration);
+                    sessionStorage.setItem("user", response.user);
+                    sessionStorage.setItem("roles", response.roles);
+                }
+                console.log(response);
+                window.location.href = "https://localhost:44361/Todo";
+            });
+            //window.location.href="https://localhost:44361/Todo";
+        }
+    </script>
+}
